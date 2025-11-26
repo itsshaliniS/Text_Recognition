@@ -1,0 +1,36 @@
+# Deep Learning Framework
+torch
+torchvision
+
+# Image Processig
+Pillow
+opencv-python
+albumentations
+
+# ML Experiment Tracking
+mlflow
+
+# Flask Web Framework
+Flask
+Flask-CORS
+
+# Data Processing
+numpy
+pandas
+
+# Metrics and Evaluation
+python-Levenshtein
+
+# Visualization
+matplotlib
+
+# Progress Bar
+tqdm
+
+# Optional: For production deployment
+gunicorn
+
+# Optional: For Jupyter notebooks (development)
+jupyter
+ipykernel
+

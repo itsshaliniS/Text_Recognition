@@ -1,0 +1,84 @@
+# MLflow Configuration for OCR Project
+
+# Experiment Configuration
+experiment:
+  name: "OCR-CRNN"
+  description: "Handwritten Text Recognition using CRNN with ResNet18 encoder"
+  
+# Tracking Configuration
+tracking:
+  # Local tracking directory
+  backend_store_uri: "file:./mlruns"
+  default_artifact_root: "file:./mlruns"
+  
+  # DAGsHub Remote Tracking (optional)
+  # Uncomment and configure these to enable DAGsHub tracking
+  # dagshub:
+  #   username: "your_dagshub_username"
+  #   repo: "ocr-project"
+  #   tracking_uri: "https://dagshub.com/your_username/ocr-project.mlflow"
+  
+# Run Configuration
+run:
+  name: "crnn_resnet18_bilstm"
+  tags:
+    model: "CRNN"
+    framework: "PyTorch"
+    task: "OCR"
+    dataset: "IAM"
+    architecture: "ResNet18 + BiLSTM"
+    loss: "CTC"
+
+# Model Parameters
+parameters:
+  # Model Architecture
+  hidden_size: 256
+  num_lstm_layers: 2
+  
+  # Training
+  num_epochs: 20
+  batch_size: 32
+  learning_rate: 0.001
+  weight_decay: 0.00001
+  
+  # Data
+  img_height: 32
+  img_width: 128
+  num_workers: 4
+  
+  # Optimizer
+  optimizer: "Adam"
+  scheduler: "ReduceLROnPlateau"
+  scheduler_patience: 3
+  scheduler_factor: 0.5
+  
+  # Regularization
+  gradient_clip: 5.0
+  dropout: 0.3
+
+# Metrics to Track
+metrics:
+  - train_loss
+  - val_loss
+  - train_cer
+  - val_cer
+  - val_wer
+  - learning_rate
+
+# Artifacts to Log
+artifacts:
+  - best_model.pkl
+  - best_model.pt
+  - training_curves.png
+  - config.json
+  
+# DAGsHub Setup Instructions
+# 1. Create a DAGsHub account at https://dagshub.com
+# 2. Create a new repository for your OCR project
+# 3. Get your access token from DAGsHub settings
+# 4. Set environment variables:
+#    export MLFLOW_TRACKING_USERNAME=your_dagshub_username
+#    export MLFLOW_TRACKING_PASSWORD=your_dagshub_token
+# 5. Update the dagshub section above with your details
+# 6. Run training script and view results on DAGsHub
+

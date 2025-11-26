@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handwritten Text Recognition - OCR System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">✍️ Handwritten Text Recognition</h1>
+            <p class="subtitle">Upload an image with handwritten text to extract it</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section card">
+                <div class="upload-icon">📤</div>
+                <h2>Upload Image</h2>
+                <p class="upload-hint">Click to upload or drag and drop an image</p>
+                
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <button class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                    Choose Image
+                </button>
+                
+                <!-- Image Preview -->
+                <div id="imagePreview" class="image-preview" style="display: none;">
+                    <img id="previewImg" src="" alt="Preview">
+                    <button class="remove-btn" onclick="removeImage()">✕ Remove</button>
+                </div>
+            </div>
+
+            <!-- Extract Button -->
+            <div class="action-section">
+                <button id="extractBtn" class="extract-btn" onclick="extractText()" disabled>
+                    <span class="btn-text">Extract Text</span>
+                    <span class="loader" style="display: none;"></span>
+                </button>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section card" id="resultSection" style="display: none;">
+                <h2>Extracted Text</h2>
+                <div class="result-box">
+                    <textarea id="resultText" readonly placeholder="Extracted text will appear here..."></textarea>
+                </div>
+                <div class="result-actions">
+                    <button class="copy-btn" onclick="copyText()">📋 Copy Text</button>
+                    <button class="clear-btn" onclick="clearResults()">🗑️ Clear</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by CRNN with ResNet18 + BiLSTM + CTC Loss</p>
+            <p class="tech-stack">PyTorch • Flask • MLflow • DAGsHub</p>
+        </footer>
+
+        <!-- Status Toast -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedFile = null;
+
+        // Image input change handler
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                displayImagePreview(file);
+                document.getElementById('extractBtn').disabled = false;
+            }
+        });
+
+        // Display image preview
+        function displayImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewDiv = document.getElementById('imagePreview');
+                const previewImg = document.getElementById('previewImg');
+                
+                previewImg.src = e.target.result;
+                previewDiv.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Remove image
+        function removeImage() {
+            selectedFile = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('extractBtn').disabled = true;
+            document.getElementById('resultSection').style.display = 'none';
+        }
+
+        // Extract text from image
+        async function extractText() {
+            if (!selectedFile) {
+                showToast('Please select an image first', 'error');
+                return;
+            }
+
+            const extractBtn = document.getElementById('extractBtn');
+            const btnText = extractBtn.querySelector('.btn-text');
+            const loader = extractBtn.querySelector('.loader');
+
+            // Show loading state
+            extractBtn.disabled = true;
+            btnText.textContent = 'Processing...';
+            loader.style.display = 'inline-block';
+
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                // Send request to backend
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Display result
+                    document.getElementById('resultText').value = data.text;
+                    document.getElementById('resultSection').style.display = 'block';
+                    
+                    // Scroll to result
+                    document.getElementById('resultSection').scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'nearest' 
+                    });
+
+                    showToast('Text extracted successfully!', 'success');
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Failed to connect to server', 'error');
+            } finally {
+                // Reset button state
+                extractBtn.disabled = false;
+                btnText.textContent = 'Extract Text';
+                loader.style.display = 'none';
+            }
+        }
+
+        // Copy text to clipboard
+        function copyText() {
+            const resultText = document.getElementById('resultText');
+            resultText.select();
+            document.execCommand('copy');
+            showToast('Text copied to clipboard!', 'success');
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById('resultText').value = '';
+            document.getElementById('resultSection').style.display = 'none';
+            showToast('Results cleared', 'info');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.className = 'toast';
+            }, 3000);
+        }
+
+        // Drag and drop functionality
+        const uploadSection = document.querySelector('.upload-section');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('drag-over');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('drag-over');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                displayImagePreview(file);
+                document.getElementById('extractBtn').disabled = false;
+            } else {
+                showToast('Please drop a valid image file', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
+
