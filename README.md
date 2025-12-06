@@ -1,3 +1,54 @@
+<!--
+Project README updated to highlight project owner and Good First Contribution.
+-->
+# Text Recognition
+
+Maintained by **Shalini Singh** (@itsshaliniS)
+
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+🚀 Quick path for new contributors: add a small fix or documentation update and open a PR titled `Good first contribution: <short-description>`.
+
+**Owner / Maintainer**
+- Shalini Singh — `itsshaliniS` on GitHub
+
+**Good First Contribution**
+
+If you're looking for an easy place to start, check the `issues/` folder in this repo or open the GitHub Issues page and filter by the `good-first-contribution` label. Small, well-scoped tasks include:
+
+- Adding missing documentation (usage examples, screenshots)
+- Fixing typos in docs
+- Adding a LICENSE file (already added in this repo)
+
+See `CONTRIBUTING.md` for how to submit a PR and the project's contribution guidelines.
+
+## Quickstart
+
+```powershell
+git clone https://github.com/vannu07/Text_Recognition.git
+cd Text_Recognition
+python -m venv .venv
+.\.venv\Scripts\Activate
+pip install -r requirements.txt
+python app.py
+# open http://127.0.0.1:5000
+```
+
+## Where to start
+
+- `docs/USAGE.md` — How to run and train locally
+- `CONTRIBUTING.md` — Contribution workflow and PR checklist
+- `.github/ISSUE_TEMPLATE/` — Templates to open issues
+- `issues/` — Local curated list of small starter tasks
+
+## License
+
+This project uses the MIT License — see `LICENSE` for details.
+
+## Contact
+
+Maintainer: **Shalini Singh** — please open issues or PRs on GitHub for questions or help.
 <<<<<<< HEAD
 # 🔤 Handwritten Text Recognition (OCR) System
 
